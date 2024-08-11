@@ -1,12 +1,13 @@
 import { model, Schema } from "mongoose";
-
+import bcrypt from 'bcrypt';
 import { IUser } from "./user.interface";
+import config from "../../config";
 
-const UserSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser>(
   {
-    username: { type: String, required: true },
+    name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true ,},
     role: { type: String, enum: ['admin','user'], required: true },
     phone: { type: String, required: true },
     address: { type: String, required: true },
@@ -16,5 +17,23 @@ const UserSchema = new Schema<IUser>(
   },
   { timestamps: true }
 );
+userSchema.pre('save', async function () {
+  //
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this;
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds),
+  );
+});
 
-export const UserModel = model<IUser>("User", UserSchema);
+//post save middleware /
+
+userSchema.post('save', function (doc, next) {
+  doc.password = '';
+
+  next();
+});
+
+
+export const User = model<IUser>("User", userSchema);
