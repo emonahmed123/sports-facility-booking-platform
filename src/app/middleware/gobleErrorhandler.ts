@@ -7,8 +7,6 @@ import handleCastError from '../error/handleCastError';
 import AppError from '../error/AppError';
 import handleDuplicateError from './handleDuplicateError';
 
-
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const gobleErrorhandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
@@ -25,35 +23,29 @@ const gobleErrorhandler: ErrorRequestHandler = (err, req, res, next) => {
     },
   ];
 
-
-
   if (err instanceof ZodError) {
     const simlifiedError = hangelZodError(err);
 
     statusCode = simlifiedError?.statusCode;
     message = simlifiedError?.message;
     errorSources = simlifiedError?.errorSources;
-  }
-  else if(err?.name==='ValidationError'){
+  } else if (err?.name === 'ValidationError') {
     const simlifiedError = handleValidationError(err);
 
     statusCode = simlifiedError?.statusCode;
     message = simlifiedError?.message;
     errorSources = simlifiedError?.errorSources;
-  }
-  else if (err?.name === 'CastError') {
+  } else if (err?.name === 'CastError') {
     const simplifiedError = handleCastError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSources;
-  }
-  else if (err?.code === 11000) {
+  } else if (err?.code === 11000) {
     const simplifiedError = handleDuplicateError(err);
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSources;
-  }
-  else if (err instanceof AppError) {
+  } else if (err instanceof AppError) {
     statusCode = err?.statusCode;
     message = err.message;
     errorSources = [
@@ -66,9 +58,9 @@ const gobleErrorhandler: ErrorRequestHandler = (err, req, res, next) => {
   return res.status(statusCode).json({
     success: false,
     message,
-  
+
     errorSources,
-    stack:config.node_env==='development'?   err?.stack:null
+    stack: config.node_env === 'development' ? err?.stack : null,
     // error: err,
   });
 };

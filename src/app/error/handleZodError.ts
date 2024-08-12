@@ -1,5 +1,4 @@
-import { ZodError, ZodIssue } from "zod";
-
+import { ZodError, ZodIssue } from 'zod';
 
 type TErrorSource = {
   path: string | number;
@@ -19,8 +18,7 @@ const hangelZodError = (err: ZodError) => {
     statusCode,
     message: 'Zod validation Erorr',
     errorSources,
-
   };
 };
 
-export default hangelZodError
+export default hangelZodError;

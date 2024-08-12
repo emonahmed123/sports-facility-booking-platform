@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-
-
 const signupValidationSchema = z.object({
   body: z.object({
     name: z.string({
@@ -21,15 +19,12 @@ const signupValidationSchema = z.object({
       required_error: 'Address is required',
       invalid_type_error: 'Address must be a string',
     }),
-    role: z
-    .enum(['admin','user'] , {
+    role: z.enum(['admin', 'user'], {
       required_error: 'Role is required',
     }),
     isDeleted: z.boolean().optional(),
   }),
 });
-
-
 
 const updateUserValidationSchema = z.object({
   body: z.object({
@@ -67,7 +62,7 @@ const updateUserValidationSchema = z.object({
       })
       .optional(),
     role: z
-      .enum(['admin','user'] , {
+      .enum(['admin', 'user'], {
         required_error: 'Role is required',
       })
       .optional(),
@@ -75,13 +70,16 @@ const updateUserValidationSchema = z.object({
   }),
 });
 
-
-
-
+const loginValidationSchema = z.object({
+  body: z.object({
+    email: z.string({ required_error: 'email is Required' }),
+    password: z.string({ required_error: 'password is required' }),
+  }),
+});
 
 export const userValidationSchemas = {
   signupValidationSchema,
- 
- 
+  loginValidationSchema,
+
   updateUserValidationSchema,
 };

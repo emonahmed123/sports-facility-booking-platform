@@ -1,5 +1,5 @@
-import { TGenericErrorResponse } from "../error/ValidationError";
-import { TErrorSources } from "../interface/error.interface";
+import { TGenericErrorResponse } from '../error/ValidationError';
+import { TErrorSources } from '../interface/error.interface';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleDuplicateError = (err: any): TGenericErrorResponse => {

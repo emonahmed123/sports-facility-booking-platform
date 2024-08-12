@@ -31,4 +31,3 @@ const handleValidationError = (
 };
 
 export default handleValidationError;
-
