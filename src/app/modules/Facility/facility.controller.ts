@@ -20,7 +20,7 @@ const getAllFacility = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Facilities retrieved successfully',
+    message:'Facilities retrieved successfully',
     data: result,
   });
 });
