@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import config from '../config';
@@ -7,7 +8,7 @@ import handleCastError from '../error/handleCastError';
 import AppError from '../error/AppError';
 import handleDuplicateError from './handleDuplicateError';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const gobleErrorhandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Something went wrong!';
