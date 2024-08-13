@@ -1,11 +1,11 @@
-import httpStatus from "http-status";
-import AppError from "../error/AppError";
-import { User } from "../modules/user/user.model";
-import catchAsync from "../utils/catchAsync";
-import config from "../config";
-import jwt, { JwtPayload } from 'jsonwebtoken'
-import { NextFunction, Request, Response } from "express";
-import { TUserRole } from "../modules/user/user.interface";
+import httpStatus from 'http-status';
+import AppError from '../error/AppError';
+import { User } from '../modules/user/user.model';
+import catchAsync from '../utils/catchAsync';
+import config from '../config';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { NextFunction, Request, Response } from 'express';
+import { TUserRole } from '../modules/user/user.interface';
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -22,8 +22,9 @@ const auth = (...requiredRoles: TUserRole[]) => {
       config.jwt_access_secret as string,
     ) as JwtPayload;
 
-    const { role, email, iat } = decoded;
+    const { role, email, userId } = decoded;
 
+    console.log(decoded);
     // checking if the user is exist
     const user = await User.isUserExistsByEmail(email);
 
@@ -38,10 +39,6 @@ const auth = (...requiredRoles: TUserRole[]) => {
       throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
     }
 
-  
-
-    
-
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
@@ -53,6 +50,5 @@ const auth = (...requiredRoles: TUserRole[]) => {
     next();
   });
 };
-
 
 export default auth;

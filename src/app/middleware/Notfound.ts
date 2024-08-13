@@ -2,7 +2,6 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const notFound = (
   err: any,
   req: Request,

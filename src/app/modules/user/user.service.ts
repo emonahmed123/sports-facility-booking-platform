@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import AppError from '../../error/AppError';
 import { IUser, TLoginUser } from './user.interface';
 import { User } from './user.model';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 import config from '../../config';
 
 const createSingupIntoDb = async (payload: IUser) => {
@@ -11,60 +11,49 @@ const createSingupIntoDb = async (payload: IUser) => {
   return result;
 };
 
-const loginUser =async(payload:TLoginUser)=>{
- 
- 
- 
- //  if(! await User.isUserExistsByCustomId(payload?.id)){
- //   throw new AppError(httpStatus.NOT_FOUND, 'This user not found')
- // }
- 
- const user=await User.isUserExistsByEmail(payload.email)
- 
- if(!user){
-   throw new AppError(httpStatus.NOT_FOUND, 'This user is NotFound')
- }
- const isDeleted =user?.isDeleted
- 
- if(isDeleted){
-   throw new AppError(httpStatus.NOT_FOUND, 'This user is Deleted')
- }
- 
- //cheaking if the user is  already deleted
- 
- 
+const loginUser = async (payload: TLoginUser) => {
+  //  if(! await User.isUserExistsByCustomId(payload?.id)){
+  //   throw new AppError(httpStatus.NOT_FOUND, 'This user not found')
+  // }
 
- 
- 
- // const isPasswordMatch= 
- 
- // console.log(isPasswordMatch)
- 
-//      console.log(isUserExists?.password)
- if(!(await User.isPasswordMatch(payload.password,user?.password))){
-   throw new AppError(httpStatus.FORBIDDEN,'This password flase')
- }
- 
- const jwtPayload={
-  email :user?.email,
-  role:user?.role,
-    
- }
- const accessToken =jwt.sign(jwtPayload,config.jwt_access_secret as string,
-  {expiresIn:'10d'}
- )
- 
- 
-   return {
-     accessToken,
-       data:user
-   }
- }
+  const user = await User.isUserExistsByEmail(payload.email);
 
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is NotFound');
+  }
+  const isDeleted = user?.isDeleted;
 
+  if (isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is Deleted');
+  }
 
+  //cheaking if the user is  already deleted
+
+  // const isPasswordMatch=
+
+  // console.log(isPasswordMatch)
+
+  //      console.log(isUserExists?.password)
+  if (!(await User.isPasswordMatch(payload.password, user?.password))) {
+    throw new AppError(httpStatus.FORBIDDEN, 'This password flase');
+  }
+
+  const jwtPayload = {
+    userId: user._id,
+    email: user?.email,
+    role: user?.role,
+  };
+  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+    expiresIn: '10d',
+  });
+
+  return {
+    accessToken,
+    data: user,
+  };
+};
 
 export const userService = {
   createSingupIntoDb,
-  loginUser
+  loginUser,
 };

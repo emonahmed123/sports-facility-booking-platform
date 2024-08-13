@@ -15,25 +15,18 @@ const Createsignup = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const loginUser = catchAsync(async (req, res) => {
+  const result = await userService.loginUser(req.body);
 
-const loginUser =catchAsync(async(req,res)=>{
-  
-  const result =await userService.loginUser(req.body) 
-
-
-
-
-  sendResponse(res,{
-    statusCode:httpStatus.OK,
-    success:true,
-    message:'User is logged in succesfully!',
-    data:result
-  })
-})
-
-
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User is logged in succesfully!',
+    data: result,
+  });
+});
 
 export const userController = {
   Createsignup,
-  loginUser
+  loginUser,
 };
