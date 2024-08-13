@@ -57,7 +57,7 @@ const loginUser =async(payload:TLoginUser)=>{
  
    return {
      accessToken,
-  
+       data:user
    }
  }
 

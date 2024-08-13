@@ -8,24 +8,24 @@ import { USER_ROLE } from '../user/user.canstance';
 const router = express.Router();
 
 router.post(
-  '/',
+  '/', auth(USER_ROLE.admin),
   validateRequest(facilityValidations.facilityValidationSchema),
   FacilityController.creatFacility,
 );
 
 router.put(
-  '/:id',
+  '/:id',auth(USER_ROLE.admin),
   validateRequest(facilityValidations.UpdatefacilityValidationSchema),
   FacilityController.updateFacility,
 );
 
 router.delete(
-  '/:id',
-  validateRequest(facilityValidations.UpdatefacilityValidationSchema),
+  '/:id',auth(USER_ROLE.admin),
+  validateRequest(   facilityValidations.UpdatefacilityValidationSchema),
   FacilityController.deleteFacility,
 );
 
 router.delete('/:id', FacilityController.deleteFacility);
-router.get('/', auth(USER_ROLE.admin), FacilityController.getAllFacility);
+router.get('/', FacilityController.getAllFacility);
 
 export const facilityRouter = router;
