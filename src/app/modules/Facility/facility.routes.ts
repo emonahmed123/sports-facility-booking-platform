@@ -2,6 +2,8 @@ import express from 'express';
 import validateRequest from '../../middleware/validateRequest';
 import { facilityValidations } from './facility.validation';
 import { FacilityController } from './facility.controller';
+import auth from '../../middleware/auth';
+import { USER_ROLE } from '../user/user.canstance';
 
 const router = express.Router();
 
@@ -24,6 +26,6 @@ router.delete(
 );
 
 router.delete('/:id', FacilityController.deleteFacility);
-router.get('/', FacilityController.getAllFacility);
+router.get('/', auth(USER_ROLE.admin), FacilityController.getAllFacility);
 
 export const facilityRouter = router;

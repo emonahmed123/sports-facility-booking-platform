@@ -1,6 +1,9 @@
 import { Model } from "mongoose";
+import { USER_ROLE } from "./user.canstance";
 
 export interface IUser {
+
+
   name: string;
   email: string;
   password: string;
@@ -24,3 +27,6 @@ export interface UserModel extends Model<IUser>{
 
 
 }
+
+
+export type TUserRole = keyof typeof USER_ROLE;

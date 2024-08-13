@@ -2,6 +2,8 @@ import httpStatus from 'http-status';
 import AppError from '../../error/AppError';
 import { IUser, TLoginUser } from './user.interface';
 import { User } from './user.model';
+import jwt from 'jsonwebtoken'
+import config from '../../config';
 
 const createSingupIntoDb = async (payload: IUser) => {
   const result = await User.create(payload);
@@ -43,19 +45,19 @@ const loginUser =async(payload:TLoginUser)=>{
    throw new AppError(httpStatus.FORBIDDEN,'This password flase')
  }
  
-//  const jwtPayload={
-//    userId:isUserExists.id,
-//    role:isUserExists.role
-//  }
-//  const accessToken =jwt.sign(jwtPayload,config.jwt_access_secret as string,
-//   {expiresIn:'10d'}
-//  )
+ const jwtPayload={
+  email :user?.email,
+  role:user?.role,
+    
+ }
+ const accessToken =jwt.sign(jwtPayload,config.jwt_access_secret as string,
+  {expiresIn:'10d'}
+ )
  
  
    return {
-    //  accessToken,
-     
-    user
+     accessToken,
+  
    }
  }
 
