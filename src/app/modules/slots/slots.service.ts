@@ -3,6 +3,7 @@ import AppError from "../../error/AppError";
 import { Facility } from "../Facility/facility.model";
 import { TSlots } from "./slots.interface";
 import { Slot } from "./slots.model";
+import { Booking } from "../Booking/booking.model";
 
 const createSlotsIntoDb=async(payload:TSlots)=>{
 
@@ -54,11 +55,33 @@ const availableSlotsIntoDb =async(payload)=>{
   const date =  query.date || new Date().toISOString().split('T')[0]
   console.log(date )
 
-  const availabilSlos=await Slot.find({isBooked:false}).populate('Facility')
+  // const availabilSlos=await Slot.find({isBooked:false})
 
 
 
- return availabilSlos
+  const totalSlots = [
+    { startTime: '08:00', endTime: '10:00' },
+    { startTime: '10:00', endTime: '12:00' },
+    { startTime: '12:00', endTime: '14:00' },
+    { startTime: '14:00', endTime: '16:00' },
+    { startTime: '16:00', endTime: '18:00' },
+    { startTime: '18:00', endTime: '20:00' }
+  ];
+
+  // Retrieve bookings with 'confirmed' status for the specified date
+  const bookings = await Slot.find({ date, isBooked: false }).populate('facility');
+
+  const availableSlots = totalSlots.filter(slot => {
+    return !bookings.some(booking =>
+      (slot.startTime < booking.endTime && slot.endTime > booking.startTime)
+    );
+  });
+
+
+
+
+
+ return availableSlots
 }
 
 

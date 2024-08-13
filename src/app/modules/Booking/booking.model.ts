@@ -22,7 +22,7 @@ const bookingSchema = new Schema({
   },
   facility: {
     type: Schema.Types.ObjectId,
-    ref: 'Facility', // Assuming you have a Facility model
+    ref: 'Facility',
     required: true,
   },
   payableAmount: {
