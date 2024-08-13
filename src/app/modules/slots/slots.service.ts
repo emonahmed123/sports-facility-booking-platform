@@ -43,7 +43,7 @@ const createSlotsIntoDb = async (payload: TSlots) => {
   return createdSlots;
 };
 
-const availableSlotsIntoDb = async (payload) => {
+const availableSlotsIntoDb = async (payload:any) => {
   const query = payload;
 
   const date = query.date || new Date().toISOString().split('T')[0];

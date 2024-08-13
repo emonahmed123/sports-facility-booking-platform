@@ -23,13 +23,14 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
     if (!isUser) {
       throw new AppError(httpStatus.NOT_FOUND, 'user  Not found');
     }
-
+ console.log(user)
     const isFacility = await Facility.findById(facility);
 
     if (!isFacility) {
       throw new AppError(httpStatus.NOT_FOUND, 'facaility Not found');
     }
     const existingBooking = await Booking.findOne({
+      user:user.userId,
       facility,
       date,
       $or: [
@@ -76,19 +77,21 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
       isBooked: 'confirmed',
       facility,
     };
-    const result = await Booking.create([isBooking], { session });
+    const result = await Booking.create([isBooking], { session }).populate('facility')
 
-    await Slot.findOneAndUpdate(
+  const updatedSots=  await Slot.findOneAndUpdate(
       {
         facility,
         date,
         startTime: { $gte: startTime },
         endTime: { $lte: endTime },
       },
-      { isBooked: true },
+      { isBooked: true } ,{session,new:true},
     );
+    console.log(updatedSots)
 
-    if (!result.length) {
+
+    if (!result) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create Booking');
     }
 
