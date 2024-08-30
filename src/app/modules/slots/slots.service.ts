@@ -1,9 +1,18 @@
+/* eslint-disable prefer-const */
+
 import httpStatus from 'http-status';
 import AppError from '../../error/AppError';
 import { Facility } from '../Facility/facility.model';
 import { TSlots } from './slots.interface';
 import { Slot } from './slots.model';
 import { Booking } from '../Booking/booking.model';
+import {
+  convertTimeTo12HourFormat,
+  format24Hour,
+} from '../Booking/booking.utlis';
+
+const facilityOpenTime = '06:00 AM';
+const facilityCloseTime = '10:00 PM';
 
 const createSlotsIntoDb = async (payload: TSlots) => {
   const isFacility = await Facility.findById(payload.facility);
@@ -43,34 +52,64 @@ const createSlotsIntoDb = async (payload: TSlots) => {
   return createdSlots;
 };
 
-const availableSlotsIntoDb = async (payload:any) => {
-  const query = payload;
+const availableSlotsIntoDb = async (payload) => {
+  const { date, facility } = payload;
 
-  const date = query.date || new Date().toISOString().split('T')[0];
+  const seleteddate = date || new Date().toISOString().split('T')[0];
   console.log(date);
 
-  // const availabilSlos=await Slot.find({isBooked:false})
-
-  const totalSlots = [
-    { startTime: '08:00', endTime: '10:00' },
-    { startTime: '10:00', endTime: '12:00' },
-    { startTime: '12:00', endTime: '14:00' },
-    { startTime: '14:00', endTime: '16:00' },
-    { startTime: '16:00', endTime: '18:00' },
-    { startTime: '18:00', endTime: '20:00' },
-  ];
-
   // Retrieve bookings with 'confirmed' status for the specified date
-  const bookings = await Booking.find({ date, isBooked: 'confirmed' })
-    .populate('user')
-    .populate('facility');
 
-  const availableSlots = totalSlots.filter((slot) => {
-    return !bookings.some(
-      (booking) =>
-        slot.startTime < booking.endTime && slot.endTime > booking.startTime,
-    );
+  const bookings = await Booking.find({
+    facility: facility,
+    date: seleteddate,
+    isBooked: 'confirmed',
   });
+
+  console.log(bookings);
+
+  let availableSlots = [];
+
+  if (bookings.length === 0) {
+    availableSlots.push({
+      startTime: facilityOpenTime,
+      endTime: facilityCloseTime,
+    });
+  } else {
+    console.log(facilityOpenTime);
+    let currentStartTime = format24Hour(facilityOpenTime);
+    console.log(currentStartTime);
+
+    bookings.forEach((booking) => {
+      const bookingStartTime = format24Hour(booking.startTime);
+      const bookingEndTime = format24Hour(booking.endTime);
+
+      if (currentStartTime < bookingStartTime) {
+        availableSlots.push({
+          startTime: convertTimeTo12HourFormat(currentStartTime),
+          endTime: convertTimeTo12HourFormat(bookingStartTime),
+        });
+      }
+      currentStartTime = bookingEndTime;
+      console.log(currentStartTime);
+      console.log(bookingEndTime);
+    });
+
+    const facilityEndTime = format24Hour(facilityCloseTime);
+    if (currentStartTime < facilityEndTime) {
+      availableSlots.push({
+        startTime: convertTimeTo12HourFormat(currentStartTime),
+        endTime: convertTimeTo12HourFormat(facilityEndTime),
+      });
+    }
+  }
+
+  // const availableSlots = totalSlots.filter((slot) => {
+  //   return !bookings.some(
+  //     (booking) =>
+  //       slot.startTime < booking.endTime && slot.endTime > booking.startTime,
+  //   );
+  // });
 
   return availableSlots;
 };

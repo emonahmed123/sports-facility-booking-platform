@@ -9,6 +9,10 @@ import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../user/user.model';
 import { Booking } from './booking.model';
 import mongoose from 'mongoose';
+import {
+  calculateDurationAndPayableAount,
+  format24Hour,
+} from './booking.utlis';
 
 const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
   const session = await mongoose.startSession();
@@ -23,18 +27,30 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
     if (!isUser) {
       throw new AppError(httpStatus.NOT_FOUND, 'user  Not found');
     }
- console.log(user)
+    console.log(user);
     const isFacility = await Facility.findById(facility);
 
     if (!isFacility) {
       throw new AppError(httpStatus.NOT_FOUND, 'facaility Not found');
     }
+
+    const st24 = format24Hour(startTime);
+    const et24 = format24Hour(endTime);
+
+    const pricePerHour = isFacility.pricePerHour;
+    // const bookings = await Booking.find({
+    //   date,
+
+    //   facility: facility,
+    // }).sort('startTime');
+
     const existingBooking = await Booking.findOne({
-      user:user.userId,
+      user: user.userId,
       facility,
+      isBooked: 'confirmed',
       date,
       $or: [
-        { startTime: { $lt: endTime }, endTime: { $gt: startTime } }, //
+        { startTime: { $lt: et24 }, endTime: { $gt: st24 } }, //
       ],
     });
 
@@ -45,29 +61,36 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
       );
     }
 
-    const issoltsfree = await Slot.find({
-      date: date,
-      facility: facility,
-      $or: [
-        {
-          startTime: { $lt: endTime }, // Slot starts before the desired end time
-          endTime: { $gt: startTime }, // Slot ends after the desired start time
-        },
-      ],
-    });
+    // const issoltsfree = await Slot.find({
+    //   date: date,
+    //   facility: facility,
+    //   $or: [
+    //     {
+    //       startTime: { $lt: endTime }, // Slot starts before the desired end time
+    //       endTime: { $gt: startTime }, // Slot ends after the desired start time
+    //     },
+    //   ],
+    // });
 
-    if (!issoltsfree) {
-      throw new AppError(httpStatus.NOT_FOUND, 'solts Not found');
-    }
-    console.log(issoltsfree);
-    if (issoltsfree[0].isBooked === true) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'solts already booked ');
-    }
-    const start = new Date(`1970-01-01T${startTime}:00Z`);
-    const end = new Date(`1970-01-01T${endTime}:00Z`);
-    const durationInHours = (end - start) / (1000 * 60 * 60);
-    const payableAmount = durationInHours * isFacility.pricePerHour;
+    // if (!issoltsfree) {
+    //   throw new AppError(httpStatus.NOT_FOUND, 'solts Not found');
+    // }
+    // console.log(issoltsfree);
+    // if (issoltsfree[0].isBooked === true) {
+    //   throw new AppError(httpStatus.BAD_REQUEST, 'solts already booked ');
+    // }
+    // const start = new Date(`1970-01-01T${startTime}:00Z`);
+    // const end = new Date(`1970-01-01T${endTime}:00Z`);
+    // const durationInHours = (end - start) / (1000 * 60 * 60);
+    // const payableAmount = durationInHours * isFacility.pricePerHour;
 
+    const payableAmount = calculateDurationAndPayableAount(
+      startTime,
+      endTime,
+      pricePerHour,
+    );
+
+    console.log(payableAmount);
     const isBooking = {
       date,
       startTime,
@@ -77,19 +100,19 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
       isBooked: 'confirmed',
       facility,
     };
-    const result = await Booking.create([isBooking], { session }).populate('facility')
+    const result = await Booking.create([isBooking], { session });
 
-  const updatedSots=  await Slot.findOneAndUpdate(
+    const updatedSots = await Slot.findOneAndUpdate(
       {
         facility,
         date,
         startTime: { $gte: startTime },
         endTime: { $lte: endTime },
       },
-      { isBooked: true } ,{session,new:true},
+      { isBooked: true },
+      { session, new: true },
     );
-    console.log(updatedSots)
-
+    console.log(updatedSots);
 
     if (!result) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create Booking');
@@ -107,12 +130,16 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
 };
 
 const getAllBookingIntoDb = async () => {
-  const reslut = await Booking.find().populate('facility').populate('user');
+  const reslut = await Booking.find({ isBooked: 'confirmed' })
+    .populate('facility')
+    .populate('user');
   return reslut;
 };
 
 const getMyBookingIntoDb = async (user: JwtPayload) => {
-  const result = await Booking.find({ user: user }).populate('facility');
+  const result = await Booking.find({ user: user, isBooked: 'confirmed' })
+    .populate('facility')
+    .populate('user');
 
   return result;
 };
@@ -123,33 +150,11 @@ const deleteBookingIntoDb = async (id: string) => {
     // start transaction
     session.startTransaction();
 
-    //  const  BookingExits= await Booking.findById(id)
-
-    //    const facaility =BookingExits?.facility
-    //    console.log(facaility)
     const result = await Booking.findByIdAndUpdate(
       id,
       { isBooked: 'canceled' },
       { session },
     ).populate('facility');
-    const facility = result?.facility;
-    const date = result?.date;
-    const startTime = result?.startTime;
-    const endTime = result?.endTime;
-    const slotss = await Slot.findOneAndUpdate(
-      {
-        facility,
-        date,
-        startTime: { $gte: startTime },
-        endTime: { $lte: endTime },
-      },
-      { isBooked: false },
-      { session, new: true },
-    );
-
-    if (!slotss) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create Booking');
-    }
 
     await session.commitTransaction();
     await session.endSession();

@@ -24,6 +24,10 @@ const facilityValidationSchema = z.object({
       required_error: ' location is required',
       invalid_type_error: 'location must be a string',
     }),
+    image: z.string({
+      required_error: 'image is required',
+      invalid_type_error: 'image must be a string',
+    }),
     isDeleted: z.boolean().optional(),
   }),
 });
@@ -54,6 +58,12 @@ const UpdatefacilityValidationSchema = z.object({
       .string({
         required_error: ' location is required',
         invalid_type_error: 'location must be a string',
+      })
+      .optional(),
+    image: z
+      .string({
+        required_error: 'image is required',
+        invalid_type_error: 'image must be a string',
       })
       .optional(),
     isDeleted: z.boolean().optional(),

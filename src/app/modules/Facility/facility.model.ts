@@ -21,6 +21,7 @@ const facilityschema = new Schema<TFacility>(
       message: '{VALUE} is required',
     },
     location: { type: String, required: true },
+    image: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },

@@ -4,4 +4,5 @@ export type TFacility = {
   pricePerHour: number;
   location: string;
   isDeleted: boolean;
+  image: string;
 };

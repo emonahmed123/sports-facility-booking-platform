@@ -7,10 +7,17 @@ const creatFacilityIntoDb = async (payload: TFacility) => {
   return result;
 };
 const getFacilityIntoDb = async () => {
-  const result = await Facility.find();
+  const result = await Facility.find({ isDeleted: false });
 
   return result;
 };
+const getSingleFacilityIntoDb = async (id: string) => {
+  console.log(id);
+  const result = await Facility.findById(id);
+
+  return result;
+};
+
 const updateFacilityIntoDb = async (id: string, payload: TFacility) => {
   const result = await Facility.findByIdAndUpdate(id, payload, {
     new: true,
@@ -37,4 +44,5 @@ export const FacilityService = {
   updateFacilityIntoDb,
   deleteFacilityIntoDb,
   getFacilityIntoDb,
+  getSingleFacilityIntoDb,
 };

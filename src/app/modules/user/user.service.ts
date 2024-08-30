@@ -53,7 +53,18 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
+const getProfileFromDB = async (id: string) => {
+  const user = await User.findById(id);
+  if (!user) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'No Data Found');
+  }
+  // removing the isDeleted flag and password  from response
+  const { isDeleted, password, ...restData } = user.toObject();
+  return restData;
+};
+
 export const userService = {
+  getProfileFromDB,
   createSingupIntoDb,
   loginUser,
 };

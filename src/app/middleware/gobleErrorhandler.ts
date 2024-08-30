@@ -8,7 +8,6 @@ import handleCastError from '../error/handleCastError';
 import AppError from '../error/AppError';
 import handleDuplicateError from './handleDuplicateError';
 
- 
 const gobleErrorhandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Something went wrong!';

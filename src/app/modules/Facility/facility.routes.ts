@@ -7,6 +7,7 @@ import { USER_ROLE } from '../user/user.canstance';
 
 const router = express.Router();
 
+router.get('/:id', FacilityController.getSingle);
 router.post(
   '/',
   auth(USER_ROLE.admin),
@@ -29,6 +30,7 @@ router.delete(
 );
 
 router.delete('/:id', FacilityController.deleteFacility);
+
 router.get('/', FacilityController.getAllFacility);
 
 export const facilityRouter = router;
