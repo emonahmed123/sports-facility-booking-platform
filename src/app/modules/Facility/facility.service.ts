@@ -12,7 +12,7 @@ const getFacilityIntoDb = async () => {
   return result;
 };
 const getSingleFacilityIntoDb = async (id: string) => {
-  console.log(id);
+  // console.log(id);
   const result = await Facility.findById(id);
 
   return result;

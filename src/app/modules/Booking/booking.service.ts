@@ -3,8 +3,6 @@ import httpStatus from 'http-status';
 import AppError from '../../error/AppError';
 import { Facility } from '../Facility/facility.model';
 import { TBooking } from './booking.interface';
-import { Slot } from '../slots/slots.model';
-
 import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../user/user.model';
 import { Booking } from './booking.model';
@@ -13,6 +11,7 @@ import {
   calculateDurationAndPayableAount,
   format24Hour,
 } from './booking.utlis';
+import { initiatePayment } from '../Payment/Payment.utlis';
 
 const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
   const session = await mongoose.startSession();
@@ -22,19 +21,21 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
 
     const { facility, date, startTime, endTime } = payload;
 
+    console.log(payload);
+
     const isUser = await User.isUserExistsByEmail(user.email);
 
     if (!isUser) {
       throw new AppError(httpStatus.NOT_FOUND, 'user  Not found');
     }
-    console.log(user);
+    // console.log(user);
     const isFacility = await Facility.findById(facility);
 
     if (!isFacility) {
       throw new AppError(httpStatus.NOT_FOUND, 'facaility Not found');
     }
-
     const st24 = format24Hour(startTime);
+
     const et24 = format24Hour(endTime);
 
     const pricePerHour = isFacility.pricePerHour;
@@ -44,20 +45,33 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
     //   facility: facility,
     // }).sort('startTime');
 
+    if (format24Hour(endTime) <= format24Hour(startTime)) {
+      console.log(
+        'last',
+        format24Hour(endTime),
+        '...',
+        format24Hour(startTime),
+      );
+
+      throw new Error('end time also big as startTime ');
+    }
+
     const existingBooking = await Booking.findOne({
       user: user.userId,
       facility,
       isBooked: 'confirmed',
       date,
       $or: [
-        { startTime: { $lt: et24 }, endTime: { $gt: st24 } }, //
+        { startTime: { $lt: endTime }, endTime: { $gt: startTime } }, //
       ],
     });
 
     if (existingBooking) {
+      console.log(existingBooking);
+
       throw new AppError(
         httpStatus.FORBIDDEN,
-        ' YOU ALREADY BOOKING SAME SLOTS IN SAVE DAY',
+        'YOU ALREADY BOOKING SAME SLOTS IN SAME DAY',
       );
     }
 
@@ -89,39 +103,40 @@ const createBookingIntoDb = async (payload: TBooking, user: JwtPayload) => {
       endTime,
       pricePerHour,
     );
+    const transactionId = `TXN-${Date.now()}`;
 
-    console.log(payableAmount);
     const isBooking = {
       date,
       startTime,
       endTime,
       user: isUser._id,
       payableAmount,
-      isBooked: 'confirmed',
+      isBooked: 'unconfirmed',
       facility,
+      transactionId,
     };
-    const result = await Booking.create([isBooking], { session });
 
-    const updatedSots = await Slot.findOneAndUpdate(
-      {
-        facility,
-        date,
-        startTime: { $gte: startTime },
-        endTime: { $lte: endTime },
-      },
-      { isBooked: true },
-      { session, new: true },
-    );
-    console.log(updatedSots);
+    const result = await Booking.create([isBooking], { session });
 
     if (!result) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create Booking');
     }
 
+    const paymentdata = {
+      transactionId,
+      payableAmount,
+      CustomerName: isUser.name,
+      CustomerEmail: isUser.email,
+      CustomerPhone: isUser.phone,
+    };
+
+    const paymentsession = await initiatePayment(paymentdata);
+
+    // console.log(paymentsession);
     await session.commitTransaction();
     await session.endSession();
 
-    return result;
+    return paymentsession;
   } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();

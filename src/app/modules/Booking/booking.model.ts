@@ -1,5 +1,6 @@
 import { model } from 'mongoose';
 import { Schema } from 'mongoose';
+import { string } from 'zod';
 
 const bookingSchema = new Schema(
   {
@@ -30,10 +31,14 @@ const bookingSchema = new Schema(
       type: Number,
       required: true,
     },
+    transactionId: {
+      type: String,
+      required: true,
+    },
     isBooked: {
       type: String,
       enum: ['confirmed', 'unconfirmed', 'canceled'],
-      default: 'confirmed',
+      default: 'unconfirmed',
     },
   },
   { timestamps: true },

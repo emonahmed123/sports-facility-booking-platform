@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 
 import httpStatus from 'http-status';
@@ -52,7 +53,7 @@ const createSlotsIntoDb = async (payload: TSlots) => {
   return createdSlots;
 };
 
-const availableSlotsIntoDb = async (payload) => {
+const availableSlotsIntoDb = async (payload: any) => {
   const { date, facility } = payload;
 
   const seleteddate = date || new Date().toISOString().split('T')[0];
@@ -69,15 +70,19 @@ const availableSlotsIntoDb = async (payload) => {
   console.log(bookings);
 
   let availableSlots = [];
+  let currentStartTime = format24Hour(facilityOpenTime);
+  const sortedBookings = bookings.sort(
+    (a, b) => format24Hour(a.startTime) - format24Hour(b.startTime),
+  );
 
-  if (bookings.length === 0) {
+  if (sortedBookings.length === 0) {
     availableSlots.push({
       startTime: facilityOpenTime,
       endTime: facilityCloseTime,
     });
   } else {
     console.log(facilityOpenTime);
-    let currentStartTime = format24Hour(facilityOpenTime);
+
     console.log(currentStartTime);
 
     bookings.forEach((booking) => {
@@ -90,7 +95,7 @@ const availableSlotsIntoDb = async (payload) => {
           endTime: convertTimeTo12HourFormat(bookingStartTime),
         });
       }
-      currentStartTime = bookingEndTime;
+      // currentStartTime = bookingEndTime;
       console.log(currentStartTime);
       console.log(bookingEndTime);
     });

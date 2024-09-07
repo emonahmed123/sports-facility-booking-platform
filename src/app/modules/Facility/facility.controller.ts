@@ -26,7 +26,7 @@ const getAllFacility = catchAsync(async (req: Request, res: Response) => {
 });
 const getSingle = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  console.log(id);
+  // console.log(id);
   const result = await FacilityService.getSingleFacilityIntoDb(id);
 
   sendResponse(res, {
