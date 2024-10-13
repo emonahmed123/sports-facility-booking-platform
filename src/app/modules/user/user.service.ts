@@ -75,7 +75,10 @@ const getUpdateProfileFormDb = async (id: string, payload: any) => {
   }
   console.log(filteredData);
 
-  const result = await User.findByIdAndUpdate(id, filteredData);
+  const result = await User.findByIdAndUpdate(id, filteredData, {
+    new: true,
+    runValidators: true,
+  });
   console.log(result);
   return result;
 };
