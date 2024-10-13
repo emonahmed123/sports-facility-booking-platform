@@ -36,6 +36,16 @@ const getSingle = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const overView = catchAsync(async (req: Request, res: Response) => {
+  const result = await FacilityService.getoverViewIntoDb();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Facilities retrieved successfully',
+    data: result,
+  });
+});
 
 const updateFacility = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -68,4 +78,5 @@ export const FacilityController = {
   deleteFacility,
   getAllFacility,
   getSingle,
+  overView,
 };

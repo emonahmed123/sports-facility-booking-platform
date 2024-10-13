@@ -36,9 +36,21 @@ const getProfile = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const getProfileUpdate = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.userId;
+  const payload = req.body;
+  const result = await userService.getUpdateProfileFormDb(userId, payload);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'User profile retrieved successfully',
+    data: result,
+  });
+});
 
 export const userController = {
   Createsignup,
   loginUser,
   getProfile,
+  getProfileUpdate,
 };

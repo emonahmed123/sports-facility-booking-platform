@@ -11,6 +11,7 @@ const userSchema = new Schema<IUser, UserModel>(
     role: { type: String, enum: ['admin', 'user'], required: true },
     phone: { type: String, required: true },
     address: { type: String, required: true },
+    image: { type: String },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     isDeleted: { type: Boolean, default: false },

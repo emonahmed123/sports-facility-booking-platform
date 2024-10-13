@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from 'http-status';
 import AppError from '../../error/AppError';
 import { IUser, TLoginUser } from './user.interface';
@@ -63,8 +64,25 @@ const getProfileFromDB = async (id: string) => {
   return restData;
 };
 
+const getUpdateProfileFormDb = async (id: string, payload: any) => {
+  console.log(payload);
+
+  const filteredData: any = {};
+  for (const key in payload) {
+    if (payload[key] !== undefined && payload[key] !== '') {
+      filteredData[key] = payload[key];
+    }
+  }
+  console.log(filteredData);
+
+  const result = await User.findByIdAndUpdate(id, filteredData);
+  console.log(result);
+  return result;
+};
+
 export const userService = {
   getProfileFromDB,
   createSingupIntoDb,
   loginUser,
+  getUpdateProfileFormDb,
 };

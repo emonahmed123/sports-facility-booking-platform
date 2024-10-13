@@ -23,6 +23,11 @@ router.post(
   validateRequest(userValidationSchemas.loginValidationSchema),
   userController.loginUser,
 );
+router.post(
+  '/update',
+  auth(USER_ROLE.admin, USER_ROLE.user),
+  userController.getProfileUpdate,
+);
 
 router.get(
   '/me',

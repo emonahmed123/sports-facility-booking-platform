@@ -6,8 +6,7 @@ import auth from '../../middleware/auth';
 import { USER_ROLE } from '../user/user.canstance';
 
 const router = express.Router();
-
-router.get('/:id', FacilityController.getSingle);
+router.get('/overview', FacilityController.overView);
 router.post(
   '/',
   auth(USER_ROLE.admin),
@@ -29,6 +28,7 @@ router.delete(
   FacilityController.deleteFacility,
 );
 
+router.get('/:id', FacilityController.getSingle);
 router.delete('/:id', FacilityController.deleteFacility);
 
 router.get('/', FacilityController.getAllFacility);

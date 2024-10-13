@@ -1,31 +1,37 @@
 import mongoose, { Schema } from 'mongoose';
-import { TSlots } from './slots.interface';
 
-const slotSchema = new Schema<TSlots>(
+const slotSchema = new Schema(
   {
-    date: {
-      type: String, // Use ISO format 'YYYY-MM-DD'
+    name: {
+      type: String,
       required: true,
     },
-    startTime: {
-      type: String, // Use 'HH:MM' format
+    image: {
+      type: String,
       required: true,
     },
-    endTime: {
-      type: String, // Use 'HH:MM' format
+    description: {
+      type: String,
       required: true,
     },
-    facility: {
-      type: Schema.Types.ObjectId,
-      ref: 'Facility',
+    live: {
+      type: String,
       required: true,
     },
-    isBooked: {
-      type: Boolean,
-      default: false,
+    server: {
+      type: String,
+      required: true,
+    },
+    client: {
+      type: String,
+      required: true,
+    },
+    tecnology: {
+      type: String,
+      required: true,
     },
   },
   { timestamps: true },
 );
 
-export const Slot = mongoose.model<TSlots>('Slot', slotSchema);
+export const Slot = mongoose.model('Slot', slotSchema);

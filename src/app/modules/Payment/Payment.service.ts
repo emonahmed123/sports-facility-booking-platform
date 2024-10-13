@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Booking } from '../Booking/booking.model';
 import { verifyPayment } from './Payment.utlis';
 import { join } from 'path';
 import { readFileSync } from 'fs';
-const paymentIntoDb = async (payload) => {
+const paymentIntoDb = async (payload: any) => {
   const { transactionId, status } = payload;
 
   const verifyresponse = await verifyPayment(transactionId);

@@ -8,6 +8,8 @@ export interface IUser {
   password: string;
   role: 'admin' | 'user';
   phone: string;
+  image: string;
+
   address: string;
   createdAt: Date;
   updatedAt: Date;
